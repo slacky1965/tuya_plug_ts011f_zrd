@@ -53,9 +53,8 @@ void set_relay_status(uint8_t i, uint8_t status) {
     drv_gpio_write(dev_relay.unit_relay[i].rl, status);
 }
 
-static void print_setting_sr(nv_sts_t st, relay_settings_t *relay_settings_tmp, bool save) {
-
 #if UART_PRINTF_MODE && DEBUG_SAVE
+static void print_setting_sr(nv_sts_t st, relay_settings_t *relay_settings_tmp, bool save) {
 
     printf("Settings %s. Return: %s\r\n", save?"saved":"restored", st==NV_SUCC?"Ok":"Error");
 
@@ -70,8 +69,8 @@ static void print_setting_sr(nv_sts_t st, relay_settings_t *relay_settings_tmp, 
     printf("auto_restart:       0x%02x\r\n", relay_settings_tmp->auto_restart);
     printf("key_lock:           0x%02x\r\n", relay_settings_tmp->key_lock);
 
-#endif
 }
+#endif
 
 nv_sts_t relay_settings_save() {
     nv_sts_t st = NV_SUCC;
