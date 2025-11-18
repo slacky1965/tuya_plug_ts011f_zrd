@@ -15,12 +15,12 @@ void led_off(uint32_t pin)
 
 void light_on(void)
 {
-    if(!g_appCtx.timerLedEvt) led_on(LED_GPIO);
+    if(!g_appCtx.timerLedEvt && relay_settings.led_control != CONTROL_LED_OFF) led_on(LED_GPIO);
 }
 
 void light_off(void)
 {
-    if(!g_appCtx.timerLedEvt) led_off(LED_GPIO);
+    if(!g_appCtx.timerLedEvt && relay_settings.led_control != CONTROL_LED_ON) led_off(LED_GPIO);
 }
 
 void light_init(void)

@@ -65,6 +65,7 @@ typedef struct {
     bool     onOff;
     bool     globalSceneControl;
     bool     key_lock;
+    uint8_t  led_control;
 } zcl_onOffAttr_t;
 
 typedef struct {

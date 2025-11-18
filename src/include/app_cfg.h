@@ -30,6 +30,8 @@
 extern "C" {
 #endif
 
+#define END_DEVICE  1
+
 #include "app_types.h"
 
 #ifndef MCU_CORE_8258
@@ -62,7 +64,7 @@ extern "C" {
 #include "version_cfg.h"
 
 /* Debug mode config */
-#define UART_PRINTF_MODE                OFF
+#define UART_PRINTF_MODE                ON
 #define DEBUG_SAVE	                    ON
 #define DEBUG_BUTTON                    ON
 #define DEBUG_SWITCH                    ON
