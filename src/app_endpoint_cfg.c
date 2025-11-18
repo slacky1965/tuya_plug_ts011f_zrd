@@ -259,6 +259,7 @@ zcl_onOffAttr_t g_zcl_onOffAttrs[AMT_RELAY] = {
         .offWaitTime        = 0x0000,
         .startUpOnOff       = ZCL_START_UP_ONOFF_SET_ONOFF_TO_OFF,
         .key_lock           = 0x00,
+        .led_control        = DEFAULT_LED_CONTROL,
     },
 //    {
 //        .onOff              = 0x00,
@@ -270,14 +271,15 @@ zcl_onOffAttr_t g_zcl_onOffAttrs[AMT_RELAY] = {
 };
 
 const zclAttrInfo_t onOff1_attrTbl[] = {
-    { ZCL_ATTRID_ONOFF,                     ZCL_BOOLEAN,    RR,     (uint8_t*)&g_zcl_onOffAttrs[0].onOff               },
-    { ZCL_ATTRID_GLOBAL_SCENE_CONTROL,      ZCL_BOOLEAN,    R,      (uint8_t*)&g_zcl_onOffAttrs[0].globalSceneControl  },
-    { ZCL_ATTRID_ON_TIME,                   ZCL_UINT16,     RW,     (uint8_t*)&g_zcl_onOffAttrs[0].onTime              },
-    { ZCL_ATTRID_OFF_WAIT_TIME,             ZCL_UINT16,     RW,     (uint8_t*)&g_zcl_onOffAttrs[0].offWaitTime         },
-    { ZCL_ATTRID_START_UP_ONOFF,            ZCL_ENUM8,      RW,     (uint8_t*)&g_zcl_onOffAttrs[0].startUpOnOff        },
-    { ZCL_ATTRID_CUSTOM_KEY_LOCK,           ZCL_BOOLEAN,    RW,     (uint8_t*)&g_zcl_onOffAttrs[0].key_lock            },
+    { ZCL_ATTRID_ONOFF,                     ZCL_BOOLEAN,    RR,     (uint8_t*)&g_zcl_onOffAttrs[0].onOff                },
+    { ZCL_ATTRID_GLOBAL_SCENE_CONTROL,      ZCL_BOOLEAN,    R,      (uint8_t*)&g_zcl_onOffAttrs[0].globalSceneControl   },
+    { ZCL_ATTRID_ON_TIME,                   ZCL_UINT16,     RW,     (uint8_t*)&g_zcl_onOffAttrs[0].onTime               },
+    { ZCL_ATTRID_OFF_WAIT_TIME,             ZCL_UINT16,     RW,     (uint8_t*)&g_zcl_onOffAttrs[0].offWaitTime          },
+    { ZCL_ATTRID_START_UP_ONOFF,            ZCL_ENUM8,      RW,     (uint8_t*)&g_zcl_onOffAttrs[0].startUpOnOff         },
+    { ZCL_ATTRID_CUSTOM_KEY_LOCK,           ZCL_BOOLEAN,    RW,     (uint8_t*)&g_zcl_onOffAttrs[0].key_lock             },
+    { ZCL_ATTRID_CUSTOM_LED,                ZCL_ENUM8,      RW,     (uint8_t*)&g_zcl_onOffAttrs[0].led_control          },
 
-    { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,   ZCL_UINT16,     R,      (uint8_t*)&zcl_attr_global_clusterRevision      },
+    { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,   ZCL_UINT16,     R,      (uint8_t*)&zcl_attr_global_clusterRevision          },
 };
 
 #define ZCL_ONOFF1_ATTR_NUM   sizeof(onOff1_attrTbl) / sizeof(zclAttrInfo_t)

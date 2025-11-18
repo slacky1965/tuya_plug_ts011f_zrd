@@ -68,6 +68,7 @@ static void print_setting_sr(nv_sts_t st, relay_settings_t *relay_settings_tmp, 
     printf("protect_control:    0x%02x\r\n", relay_settings_tmp->protect_control);
     printf("auto_restart:       0x%02x\r\n", relay_settings_tmp->auto_restart);
     printf("key_lock:           0x%02x\r\n", relay_settings_tmp->key_lock);
+    printf("led_control:        0x%02x\r\n", relay_settings_tmp->led_control);
 
 }
 #endif
@@ -124,12 +125,14 @@ nv_sts_t relay_settings_restore() {
         relay_settings_tmp.protect_control = DEFAULT_PROTECT_CONTROL;
         relay_settings_tmp.auto_restart = DEFAULT_AUTORESTART;
         relay_settings_tmp.key_lock = DEFAULT_KEY_LOCK;
+        relay_settings_tmp.led_control = DEFAULT_LED_CONTROL;
     }
 
     memcpy(&relay_settings, &relay_settings_tmp, (sizeof(relay_settings_t)));
     g_zcl_onOffAttrs[0].onOff = relay_settings.status_onoff[0];
     g_zcl_onOffAttrs[0].startUpOnOff = relay_settings.startUpOnOff[0];
     g_zcl_onOffAttrs[0].key_lock = relay_settings.key_lock;
+    g_zcl_onOffAttrs[0].led_control = relay_settings.led_control;
     g_zcl_msAttrs.current_max = relay_settings.current_max;
     g_zcl_msAttrs.power_max = relay_settings.power_max;
     g_zcl_msAttrs.voltage_min = relay_settings.voltage_min;
@@ -156,12 +159,14 @@ void relay_settints_default() {
     relay_settings.protect_control = DEFAULT_PROTECT_CONTROL;
     relay_settings.auto_restart = DEFAULT_AUTORESTART;
     relay_settings.key_lock = DEFAULT_KEY_LOCK;
+    relay_settings.led_control = DEFAULT_LED_CONTROL;
 
     relay_settings_save();
 
     g_zcl_onOffAttrs[0].onOff = relay_settings.status_onoff[0];
     g_zcl_onOffAttrs[0].startUpOnOff = relay_settings.startUpOnOff[0];
     g_zcl_onOffAttrs[0].key_lock = relay_settings.key_lock;
+    g_zcl_onOffAttrs[0].led_control = relay_settings.led_control;
     g_zcl_msAttrs.current_max = relay_settings.current_max;
     g_zcl_msAttrs.power_max = relay_settings.power_max;
     g_zcl_msAttrs.voltage_min = relay_settings.voltage_min;
@@ -177,6 +182,8 @@ void dev_relay_init() {
     dev_relay.amt = AMT_RELAY;
     dev_relay.unit_relay[0].ep = APP_ENDPOINT1;
     dev_relay.unit_relay[0].rl = RELAY1_GPIO;
+
+    if (relay_settings.led_control == CONTROL_LED_ON) light_on();
 
     check_first_start(0);
 }

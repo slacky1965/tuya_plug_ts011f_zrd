@@ -22,6 +22,7 @@
 #define DEFAULT_PROTECT_CONTROL PROTECT_CONTROL_OFF // 0 - off, 1 - on
 #define DEFAULT_AUTORESTART     AUTORESTART_OFF     // 0 - off, 1 - on
 #define DEFAULT_KEY_LOCK        KEY_LOCK_OFF        // 0 - off, 1 - on
+#define DEFAULT_LED_CONTROL     CONTROL_LED_ON_OFF  // if relay if on, LED is on, if relay is off, LED is off
 
 typedef struct __attribute__((packed)) {
     uint8_t  status_onoff[AMT_RELAY];
@@ -34,6 +35,7 @@ typedef struct __attribute__((packed)) {
     uint8_t  protect_control;
     uint8_t  auto_restart;
     uint8_t  key_lock;
+    uint8_t  led_control;
     uint8_t  crc;
 } relay_settings_t;
 
