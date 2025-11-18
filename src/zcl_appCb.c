@@ -197,6 +197,27 @@ static void app_zclWriteReqCmd(uint8_t epId, uint16_t clusterId, zclWriteCmd_t *
                 printf("key_lock: 0x%02x, ep: %d\r\n", key_lock, epId);
                 relay_settings.key_lock = key_lock;
                 save = true;
+            } else if (attr[i].attrID == ZCL_ATTRID_CUSTOM_LED) {
+                uint8_t led_ctrl = attr[i].attrData[0];
+                printf("led_ctrl: 0x%02x, ep: %d\r\n", led_ctrl, epId);
+                if ( led_ctrl >= CONTROL_LED_OFF && led_ctrl <= CONTROL_LED_ON_OFF) {
+                    relay_settings.led_control = led_ctrl;
+                    save = true;
+                    switch(led_ctrl) {
+                        case CONTROL_LED_OFF:
+                            light_off();
+                            break;
+                        case CONTROL_LED_ON:
+                            light_on();
+                            break;
+                        case CONTROL_LED_ON_OFF:
+                            if (get_relay_status(idx)) light_on();
+                            else light_off();
+                            break;
+                        default:
+                            break;
+                    }
+                }
             }
         }
     } else if (clusterId == ZCL_CLUSTER_MS_ELECTRICAL_MEASUREMENT) {

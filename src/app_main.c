@@ -132,7 +132,7 @@ void user_app_init(void)
         light_blink_start(90, 250, 750);
     }
 
-    printf("zb_getLocalShortAddr: 0x%04x\r\n", zb_getLocalShortAddr());
+//    printf("zb_getLocalShortAddr: 0x%04x\r\n", zb_getLocalShortAddr());
 
 //    printf("FLASH_ADDR_OF_OTA_IMAGE: 0x%08x\r\n", FLASH_ADDR_OF_OTA_IMAGE);
 //    printf("BEGIN_USER_DATA: 0x%x\r\n", BEGIN_USER_DATA);

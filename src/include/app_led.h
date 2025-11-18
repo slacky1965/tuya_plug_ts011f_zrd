@@ -14,7 +14,7 @@ void light_init(void);
 void light_on(void);
 void light_off(void);
 
-void led_on(uint32_t pin);
-void led_off(uint32_t pin);
+//void led_on(uint32_t pin);
+//void led_off(uint32_t pin);
 
 #endif /* SRC_INCLUDE_APP_LED_H_ */
