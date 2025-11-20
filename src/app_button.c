@@ -18,9 +18,10 @@ static void buttonKeepPressed(u8 btNum) {
         printf("The button was keep pressed for 5 seconds\r\n");
 #endif
 
-        light_off();
-        sleep_ms(1000);
-        light_on();
+//        relay_settings.led_control = CONTROL_LED_ON_OFF;
+//        light_off();
+//        sleep_ms(1000);
+//        light_on();
         zb_factoryReset();
 
         energy_remove();

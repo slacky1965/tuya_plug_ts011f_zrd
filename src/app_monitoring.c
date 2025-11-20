@@ -99,15 +99,15 @@ static void send_uart_commandCb(void *args) {
 //    return len;
 }
 
-static void clear_user_data(uint32_t flash_addr) {
-
-    uint32_t flash_data_size = flash_addr + USER_DATA_SIZE;
-
-    while(flash_addr < flash_data_size) {
-        flash_erase_sector(flash_addr);
-        flash_addr += FLASH_SECTOR_SIZE;
-    }
-}
+//static void clear_user_data(uint32_t flash_addr) {
+//
+//    uint32_t flash_data_size = flash_addr + USER_DATA_SIZE;
+//
+//    while(flash_addr < flash_data_size) {
+//        flash_erase_sector(flash_addr);
+//        flash_addr += FLASH_SECTOR_SIZE;
+//    }
+//}
 
 static void energy_saveCb(void *args) {
 
@@ -144,7 +144,7 @@ static void energy_saveCb(void *args) {
 
 
 static void init_default_energy_cons() {
-    clear_user_data(BEGIN_USER_DATA);
+    flash_erase_sector(BEGIN_USER_DATA);
     memset(&energy_cons, 0, sizeof(energy_cons_t));
     energy_cons.id = ID_ENERGY;
     energy_cons.flash_addr_start = BEGIN_USER_DATA;

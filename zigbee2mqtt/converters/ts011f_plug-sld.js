@@ -9,6 +9,7 @@ const e = exposes_1.presets;
 const ea = exposes_1.access;
 
 const attrRelayKeyLock = 0xf000;
+const attrRelayLedCtrl = 0xf001;
 const attrRelayCurrentMax = 0xf002;
 const attrRelayPowerMax = 0xf003;
 const attrRelayTimeReload = 0xf004;
@@ -55,7 +56,13 @@ export default {
             attribute: {ID: attrRelayKeyLock, type: 0x10},
             description: "Key lock enable/disable",
         }),
-        // m.commandsOnOff(),
+        m.enumLookup({
+            "name": 'led_control',
+            "lookup": {"off": 0, "on": 1, "on/off": 2},
+            "cluster": 'genOnOff',
+            "attribute": {"ID": attrRelayLedCtrl, "type": 0x30},
+            "description": 'Led control',
+        }),
         m.electricityMeter({
           current: {"divisor": 100}, 
           voltage: {"divisor": 100}, 
