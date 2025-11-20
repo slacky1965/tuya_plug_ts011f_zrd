@@ -173,7 +173,7 @@ void zb_bdbInitCb(uint8_t status, uint8_t joinedNetwork)
  */
 void zb_bdbCommissioningCb(uint8_t status, void *arg)
 {
-    printf("bdbCommCb: sta = %x\r\n", status);
+//    printf("bdbCommCb: sta = %x\r\n", status);
 
     switch (status) {
     case BDB_COMMISSION_STA_SUCCESS:
