@@ -1,4 +1,6 @@
 #include "app_main.h"
+#include "factory_reset.h"
+
 
 //uint8_t device_online = false;
 uint8_t resp_time = false;
@@ -146,6 +148,7 @@ void app_task(void) {
     monitoring_handler();
 
     if (BDB_STATE_GET() == BDB_STATE_IDLE && !button_idle() && !available_ring_buff()) {
+        factroyRst_handler();
         report_handler();
     }
 }
@@ -182,6 +185,8 @@ void user_init(bool isRetention)
 
     /* Initialize LEDs*/
     light_init();
+
+    factroyRst_init();
 
     /* Initialize Stack */
     stack_init();
@@ -245,5 +250,6 @@ void user_init(bool isRetention)
     bdb_init((af_simple_descriptor_t *)&app_ep1_simpleDesc, &g_bdbCommissionSetting, &g_zbBdbCb, 1);
 
     rf_setTxPower(MY_RF_POWER_INDEX);
+
 }
 

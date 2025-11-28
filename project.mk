@@ -8,6 +8,7 @@ OUT_DIR += \
 OBJS += \
 $(OUT_PATH)/$(SRC_PATH)/common/main.o \
 $(OUT_PATH)/$(SRC_PATH)/common/flash.o \
+$(OUT_PATH)/$(SRC_PATH)/common/factory_reset.o \
 $(OUT_PATH)/$(SRC_PATH)/zcl/zcl_reporting.o \
 $(OUT_PATH)/$(SRC_PATH)/zcl/zcl_se_metering.o \
 $(OUT_PATH)/$(SRC_PATH)/zb_appCb.o \
