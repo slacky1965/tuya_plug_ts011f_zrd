@@ -1,6 +1,9 @@
 #ifndef SRC_INCLUDE_APP_MONITORING_H_
 #define SRC_INCLUDE_APP_MONITORING_H_
 
+#if !WITHOUT_MONITORING
+
+
 #define HEAD            0x55
 #define DATA_MAX_LEN    32
 
@@ -37,5 +40,7 @@ void energy_restore();
 void energy_save();
 void energy_remove();
 void clear_auto_restart();
+
+#endif
 
 #endif /* SRC_INCLUDE_APP_MONITORING_H_ */

@@ -112,9 +112,11 @@ void user_app_init(void)
 
     dev_relay_init();
 
-    #if ZCL_GP_SUPPORT
+//#if !WITHOUT_MONITORING
+#if ZCL_GP_SUPPORT
 	/* Initialize GP */
 	gp_init(APP_ENDPOINT1);
+//#endif
 #endif
 
 #if ZCL_OTA_SUPPORT

@@ -51,19 +51,21 @@ const uint16_t app_ep1_inClusterList[] = {
 #ifdef ZCL_POLL_CTRL
     ZCL_CLUSTER_GEN_POLL_CONTROL,
 #endif
+    ZCL_CLUSTER_SE_METERING,
+    ZCL_CLUSTER_MS_ELECTRICAL_MEASUREMENT,
 #ifdef ZCL_ON_OFF
     ZCL_CLUSTER_GEN_ON_OFF,
 #endif
-    ZCL_CLUSTER_SE_METERING,
-    ZCL_CLUSTER_MS_ELECTRICAL_MEASUREMENT,
 };
 
 /**
  *  @brief Definition for Outgoing cluster / Client Cluster
  */
 const uint16_t app_ep1_outClusterList[] = {
+#if !WITHOUT_MONITORING
 #ifdef ZCL_ON_OFF
     ZCL_CLUSTER_GEN_ON_OFF,
+#endif
 #endif
 #ifdef ZCL_OTA
     ZCL_CLUSTER_OTA,
@@ -298,6 +300,7 @@ const zclAttrInfo_t onOff1_attrTbl[] = {
 
 #endif
 
+//#if !WITHOUT_MONITORING
 
 zcl_seAttr_t g_zcl_seAttrs = {
     .unit_of_measure = 0x00,                                        // kWh
@@ -372,6 +375,8 @@ const zclAttrInfo_t ms_attrTbl[] = {
 
 #define ZCL_MS_ATTR_NUM    sizeof(ms_attrTbl) / sizeof(zclAttrInfo_t)
 
+//#endif /* WITHOUT_MONITORING */
+
 /**
  *  @brief Definition for mini relay ZCL specific cluster
  */
@@ -379,6 +384,7 @@ const zcl_specClusterInfo_t g_appClusterList1[] =
 {
     {ZCL_CLUSTER_GEN_BASIC,                 MANUFACTURER_CODE_NONE, ZCL_BASIC_ATTR_NUM,         basic_attrTbl,      zcl_basic_register,     app_basicCb     },
     {ZCL_CLUSTER_GEN_IDENTIFY,              MANUFACTURER_CODE_NONE, ZCL_IDENTIFY_ATTR_NUM,      identify_attrTbl,   zcl_identify_register,  app_identifyCb  },
+//#if !WITHOUT_MONITORING
 #ifdef ZCL_GROUP
     {ZCL_CLUSTER_GEN_GROUPS,                MANUFACTURER_CODE_NONE, ZCL_GROUP1_ATTR_NUM,        group1_attrTbl,      zcl_group_register,     NULL            },
 #endif
@@ -386,11 +392,12 @@ const zcl_specClusterInfo_t g_appClusterList1[] =
     {ZCL_CLUSTER_GEN_SCENES,                MANUFACTURER_CODE_NONE, ZCL_SCENE1_ATTR_NUM,        scene1_attrTbl,      zcl_scene_register,     app_sceneCb     },
 #endif
 //    {ZCL_CLUSTER_GEN_TIME,                  MANUFACTURER_CODE_NONE, ZCL_TIME_ATTR_NUM,          time_attrTbl,       zcl_time_register,      app_timeCb      },
+    {ZCL_CLUSTER_SE_METERING,               MANUFACTURER_CODE_NONE, ZCL_SE_ATTR_NUM,            se_attrTbl,          app_zcl_metering_register,         app_meteringCb  },
+    {ZCL_CLUSTER_MS_ELECTRICAL_MEASUREMENT, MANUFACTURER_CODE_NONE, ZCL_MS_ATTR_NUM,            ms_attrTbl,          zcl_electricalMeasure_register,    NULL    },
+//#endif
 #ifdef ZCL_ON_OFF
     {ZCL_CLUSTER_GEN_ON_OFF,                MANUFACTURER_CODE_NONE, ZCL_ONOFF1_ATTR_NUM,        onOff1_attrTbl,      zcl_onOff_register,     app_onOffCb     },
 #endif
-    {ZCL_CLUSTER_SE_METERING,               MANUFACTURER_CODE_NONE, ZCL_SE_ATTR_NUM,            se_attrTbl,          app_zcl_metering_register,         app_meteringCb  },
-    {ZCL_CLUSTER_MS_ELECTRICAL_MEASUREMENT, MANUFACTURER_CODE_NONE, ZCL_MS_ATTR_NUM,            ms_attrTbl,          zcl_electricalMeasure_register,    NULL    },
 };
 
 uint8_t APP_CB_CLUSTER_NUM1 = (sizeof(g_appClusterList1)/sizeof(g_appClusterList1[0]));

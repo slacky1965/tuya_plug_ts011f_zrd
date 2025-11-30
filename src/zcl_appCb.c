@@ -140,28 +140,28 @@ void app_zclProcessIncomingMsg(zclIncoming_t *pInHdlrMsg)
 static void app_zclReadRspCmd(zclReadRspCmd_t *pReadRspCmd) {
 //    printf("app_zclReadRspCmd\n");
 
-    uint8_t numAttr = pReadRspCmd->numAttr;
-    zclReadRspStatus_t *attrList = pReadRspCmd->attrList;
-    uint32_t time_local;
-    bool time_sent = false;
-
-    for (uint8_t i = 0; i < numAttr; i++) {
-        if (attrList[i].attrID == ZCL_ATTRID_LOCAL_TIME && attrList[i].status == ZCL_STA_SUCCESS) {
-            time_local = attrList[i].data[0] & 0xff;
-            time_local |= (attrList[i].data[1] << 8)  & 0x0000ffff;
-            time_local |= (attrList[i].data[2] << 16) & 0x00ffffff;
-            time_local |= (attrList[i].data[3] << 24) & 0xffffffff;
-            zcl_setAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_GEN_TIME, ZCL_ATTRID_LOCAL_TIME, (uint8_t*)&time_local);
-            time_sent = true;
-#if UART_PRINTF_MODE && DEBUG_TIME
-            printf("Sync Local Time: %d\r\n", time_local+UNIX_TIME_CONST);
-#endif
-        }
-    }
-
-    if (time_sent) {
-//        set_time_sent();
-    }
+//    uint8_t numAttr = pReadRspCmd->numAttr;
+//    zclReadRspStatus_t *attrList = pReadRspCmd->attrList;
+//    uint32_t time_local;
+//    bool time_sent = false;
+//
+//    for (uint8_t i = 0; i < numAttr; i++) {
+//        if (attrList[i].attrID == ZCL_ATTRID_LOCAL_TIME && attrList[i].status == ZCL_STA_SUCCESS) {
+//            time_local = attrList[i].data[0] & 0xff;
+//            time_local |= (attrList[i].data[1] << 8)  & 0x0000ffff;
+//            time_local |= (attrList[i].data[2] << 16) & 0x00ffffff;
+//            time_local |= (attrList[i].data[3] << 24) & 0xffffffff;
+//            zcl_setAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_GEN_TIME, ZCL_ATTRID_LOCAL_TIME, (uint8_t*)&time_local);
+//            time_sent = true;
+//#if UART_PRINTF_MODE && DEBUG_TIME
+//            printf("Sync Local Time: %d\r\n", time_local+UNIX_TIME_CONST);
+//#endif
+//        }
+//    }
+//
+//    if (time_sent) {
+////        set_time_sent();
+//    }
 }
 #endif
 
@@ -177,6 +177,8 @@ static void app_zclReadRspCmd(zclReadRspCmd_t *pReadRspCmd) {
  */
 static void app_zclWriteReqCmd(uint8_t epId, uint16_t clusterId, zclWriteCmd_t *pWriteReqCmd)
 {
+
+#if !WITHOUT_MONITORING
 
     uint8_t numAttr = pWriteReqCmd->numAttr;
     zclWriteRec_t *attr = pWriteReqCmd->attrList;
@@ -291,6 +293,8 @@ static void app_zclWriteReqCmd(uint8_t epId, uint16_t clusterId, zclWriteCmd_t *
             }
         }
     }
+#endif
+
 #endif
 }
 
@@ -778,87 +782,88 @@ status_t app_sceneCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdP
 #endif	/* ZCL_SCENE */
 
 
-/*********************************************************************
- * @fn      app_timeCb
- *
- * @brief   Handler for ZCL Identify command.
- *
- * @param   pAddrInfo
- * @param   cmdId
- * @param   cmdPayload
- *
- * @return  status_t
- */
-status_t app_timeCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdPayload) {
+///*********************************************************************
+// * @fn      app_timeCb
+// *
+// * @brief   Handler for ZCL Identify command.
+// *
+// * @param   pAddrInfo
+// * @param   cmdId
+// * @param   cmdPayload
+// *
+// * @return  status_t
+// */
+//status_t app_timeCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdPayload) {
+//
+//    //printf("app_timeCb. cmd: 0x%x\r\n", cmdId);
+//
+//    return ZCL_STA_SUCCESS;
+//}
+//
+//
+//
+//static int32_t checkRespTimeCb(void *arg) {
+//
+//    if (device_online) {
+//        if (!resp_time) {
+//            if (count_no_service++ == 3) {
+//                device_online = false;
+//#if UART_PRINTF_MODE// && DEBUG_LEVEL
+//                printf("No service!\r\n");
+//#endif
+//            }
+//        } else {
+//            count_no_service = 0;
+//        }
+//    } else {
+//        if (resp_time) {
+//            device_online = true;
+//            count_no_service = 0;
+//#if UART_PRINTF_MODE// && DEBUG_LEVEL
+//            printf("Device online\r\n");
+//#endif
+//        }
+//    }
+//
+//    resp_time = false;
+//
+//    return -1;
+//}
+//
+//
+//int32_t getTimeCb(void *arg) {
+//
+//    if(zb_isDeviceJoinedNwk()){
+//        epInfo_t dstEpInfo;
+//        TL_SETSTRUCTCONTENT(dstEpInfo, 0);
+//
+//        dstEpInfo.profileId = HA_PROFILE_ID;
+//#if FIND_AND_BIND_SUPPORT
+//        dstEpInfo.dstAddrMode = APS_DSTADDR_EP_NOTPRESETNT;
+//#else
+//        dstEpInfo.dstAddrMode = APS_SHORT_DSTADDR_WITHEP;
+//        dstEpInfo.dstEp = APP_ENDPOINT1;
+//        dstEpInfo.dstAddr.shortAddr = 0x0;
+//#endif
+//        zclAttrInfo_t *pAttrEntry;
+//        pAttrEntry = zcl_findAttribute(APP_ENDPOINT1, ZCL_CLUSTER_GEN_TIME, ZCL_ATTRID_TIME);
+//
+//        zclReadCmd_t *pReadCmd = (zclReadCmd_t *)ev_buf_allocate(sizeof(zclReadCmd_t) + sizeof(uint16_t));
+//        if(pReadCmd){
+//            pReadCmd->numAttr = 1;
+//            pReadCmd->attrID[0] = ZCL_ATTRID_TIME;
+//
+//            zcl_read(APP_ENDPOINT1, &dstEpInfo, ZCL_CLUSTER_GEN_TIME, MANUFACTURER_CODE_NONE, 0, 0, 0, pReadCmd);
+//
+//            ev_buf_free((uint8_t *)pReadCmd);
+//
+//            TL_ZB_TIMER_SCHEDULE(checkRespTimeCb, NULL, TIMEOUT_2SEC);
+//        }
+//    }
+//
+//    return 0;
+//}
 
-    //printf("app_timeCb. cmd: 0x%x\r\n", cmdId);
-
-    return ZCL_STA_SUCCESS;
-}
-
-
-
-static int32_t checkRespTimeCb(void *arg) {
-
-    if (device_online) {
-        if (!resp_time) {
-            if (count_no_service++ == 3) {
-                device_online = false;
-#if UART_PRINTF_MODE// && DEBUG_LEVEL
-                printf("No service!\r\n");
-#endif
-            }
-        } else {
-            count_no_service = 0;
-        }
-    } else {
-        if (resp_time) {
-            device_online = true;
-            count_no_service = 0;
-#if UART_PRINTF_MODE// && DEBUG_LEVEL
-            printf("Device online\r\n");
-#endif
-        }
-    }
-
-    resp_time = false;
-
-    return -1;
-}
-
-
-int32_t getTimeCb(void *arg) {
-
-    if(zb_isDeviceJoinedNwk()){
-        epInfo_t dstEpInfo;
-        TL_SETSTRUCTCONTENT(dstEpInfo, 0);
-
-        dstEpInfo.profileId = HA_PROFILE_ID;
-#if FIND_AND_BIND_SUPPORT
-        dstEpInfo.dstAddrMode = APS_DSTADDR_EP_NOTPRESETNT;
-#else
-        dstEpInfo.dstAddrMode = APS_SHORT_DSTADDR_WITHEP;
-        dstEpInfo.dstEp = APP_ENDPOINT1;
-        dstEpInfo.dstAddr.shortAddr = 0x0;
-#endif
-        zclAttrInfo_t *pAttrEntry;
-        pAttrEntry = zcl_findAttribute(APP_ENDPOINT1, ZCL_CLUSTER_GEN_TIME, ZCL_ATTRID_TIME);
-
-        zclReadCmd_t *pReadCmd = (zclReadCmd_t *)ev_buf_allocate(sizeof(zclReadCmd_t) + sizeof(uint16_t));
-        if(pReadCmd){
-            pReadCmd->numAttr = 1;
-            pReadCmd->attrID[0] = ZCL_ATTRID_TIME;
-
-            zcl_read(APP_ENDPOINT1, &dstEpInfo, ZCL_CLUSTER_GEN_TIME, MANUFACTURER_CODE_NONE, 0, 0, 0, pReadCmd);
-
-            ev_buf_free((uint8_t *)pReadCmd);
-
-            TL_ZB_TIMER_SCHEDULE(checkRespTimeCb, NULL, TIMEOUT_2SEC);
-        }
-    }
-
-    return 0;
-}
 
 status_t app_onOffCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload) {
 
@@ -915,6 +920,8 @@ status_t app_onOffCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayloa
     return ZCL_STA_SUCCESS;
 }
 
+//#if !WITHOUT_MONITORING
+
 status_t app_msInputCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdPayload) {
 
 //    printf("app_aInputCb(). pAddrInfo->dirCluster: %0x%x, cmdId: 0x%x\r\n", pAddrInfo->dirCluster, cmdId);
@@ -942,4 +949,4 @@ status_t app_meteringCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *c
     return ZCL_STA_SUCCESS;
 }
 
-
+//#endif

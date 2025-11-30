@@ -135,6 +135,7 @@ nv_sts_t relay_settings_restore() {
     g_zcl_onOffAttrs[0].startUpOnOff = relay_settings.startUpOnOff[0];
     g_zcl_onOffAttrs[0].key_lock = relay_settings.key_lock;
     g_zcl_onOffAttrs[0].led_control = relay_settings.led_control;
+#if !WITHOUT_MONITORING
     g_zcl_msAttrs.current_max = relay_settings.current_max;
     g_zcl_msAttrs.power_max = relay_settings.power_max;
     g_zcl_msAttrs.voltage_min = relay_settings.voltage_min;
@@ -142,7 +143,7 @@ nv_sts_t relay_settings_restore() {
     g_zcl_msAttrs.time_reload = relay_settings.time_reload;
     g_zcl_msAttrs.protect_control = relay_settings.protect_control;
     g_zcl_msAttrs.auto_restart = relay_settings.auto_restart;
-
+#endif
 #else
     st = NV_ENABLE_PROTECT_ERROR;
 #endif
@@ -169,6 +170,7 @@ void relay_settints_default() {
     g_zcl_onOffAttrs[0].startUpOnOff = relay_settings.startUpOnOff[0];
     g_zcl_onOffAttrs[0].key_lock = relay_settings.key_lock;
     g_zcl_onOffAttrs[0].led_control = relay_settings.led_control;
+#if !WITHOUT_MONITORING
     g_zcl_msAttrs.current_max = relay_settings.current_max;
     g_zcl_msAttrs.power_max = relay_settings.power_max;
     g_zcl_msAttrs.voltage_min = relay_settings.voltage_min;
@@ -176,7 +178,7 @@ void relay_settints_default() {
     g_zcl_msAttrs.time_reload = relay_settings.time_reload;
     g_zcl_msAttrs.protect_control = relay_settings.protect_control;
     g_zcl_msAttrs.auto_restart = relay_settings.auto_restart;
-
+#endif
     cmdOnOff_off(APP_ENDPOINT1);
 }
 

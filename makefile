@@ -22,10 +22,12 @@ OBJDUMP = $(COMPILE_PREFIX)-elf-objdump
 ARCH	= $(COMPILE_PREFIX)-elf-ar
 SIZE	= $(COMPILE_PREFIX)-elf-size
 
-LIBS := -lzb_router -ldrivers_8258 -lsoft-fp
+#LIBS := -lzb_router -ldrivers_8258 -lsoft-fp
+LIBS := -lzb_ed -ldrivers_8258
 
 
-DEVICE_TYPE = -DROUTER=1
+DEVICE_TYPE = -DEND_DEVICE=1
+#DEVICE_TYPE = -DROUTER=1
 MCU_TYPE = -DMCU_CORE_8258=1
 BOOT_FLAG = -DMCU_CORE_8258 -DMCU_STARTUP_8258
 
@@ -75,9 +77,7 @@ GCC_FLAGS := \
 -finline-small-functions \
 -std=gnu99 \
 -fshort-wchar \
--fms-extensions \
--nostartfiles \
--nostdlib
+-fms-extensions
 
 ifeq ($(strip $(ZCL_VERSION_FILE)),)
 GCC_FLAGS += \
@@ -181,7 +181,7 @@ main-build: clean-project $(ELF_FILE) secondary-outputs
 $(ELF_FILE): $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: TC32 C Linker'
-	$(LD) --gc-sections -nostartfiles -L $(SDK_PATH)/zigbee/lib/tc32 -L $(SDK_PATH)/platform/lib -L $(SDK_PATH)/platform/tc32 -T $(LS_FLAGS) -o "$(ELF_FILE)" $(OBJS) $(USER_OBJS) $(LIBS) 
+	$(LD) --gc-sections -L $(SDK_PATH)/zigbee/lib/tc32 -L $(SDK_PATH)/platform/lib -L $(SDK_PATH)/platform/tc32 -T $(LS_FLAGS) -o "$(ELF_FILE)" $(OBJS) $(USER_OBJS) $(LIBS) 
 	@echo 'Finished building target: $@'
 	@echo ' '
 	

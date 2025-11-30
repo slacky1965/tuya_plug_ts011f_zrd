@@ -64,7 +64,7 @@ extern "C" {
 #include "version_cfg.h"
 
 #ifndef WITHOUT_MONITORING
-#define WITHOUT_MONITORING              ON
+#define WITHOUT_MONITORING              OFF
 #endif
 
 
@@ -209,15 +209,17 @@ extern "C" {
 /**********************************************************************
  * ZCL cluster support setting
  */
-#define ZCL_GROUP_SUPPORT                           ON
-#define ZCL_SCENE_SUPPORT                           ON
 #define ZCL_ON_OFF_SUPPORT                          ON
 #define ZCL_OTA_SUPPORT                             ON
-#define ZCL_GP_SUPPORT                              ON
 #define ZCL_METERING_SUPPORT                        ON
 #define ZCL_ELECTRICAL_MEASUREMENT_SUPPORT          ON
+#if !WITHOUT_MONITORING
+#define ZCL_GROUP_SUPPORT                           ON
+#define ZCL_SCENE_SUPPORT                           ON
+#define ZCL_GP_SUPPORT                              ON
 #if TOUCHLINK_SUPPORT
 #define ZCL_ZLL_COMMISSIONING_SUPPORT               ON
+#endif
 #endif
 
 /**********************************************************************
