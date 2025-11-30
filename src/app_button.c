@@ -24,7 +24,9 @@ static void buttonKeepPressed(u8 btNum) {
 //        light_on();
         zb_factoryReset();
 
+#if !WITHOUT_MONITORING
         energy_remove();
+#endif
         relay_settints_default();
         g_appCtx.net_steer_start = true;
         TL_ZB_TIMER_SCHEDULE(net_steer_start_offCb, NULL, TIMEOUT_1MIN30SEC);

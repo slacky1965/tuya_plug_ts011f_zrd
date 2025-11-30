@@ -1,5 +1,7 @@
 #include "app_main.h"
 
+#if !WITHOUT_MONITORING
+
 // This REF get from https://github.com/esphome/esphome/blob/dev/esphome/components/bl0942/bl0942.h
 #define BL0942_POWER_REF        596
 #define BL0942_VOLTAGE_REF      15873.35944299
@@ -13,20 +15,21 @@
 #define PROTECT_POWER           0x04
 #define PROTECT_VOLTAGE_SAVE    0x08
 
+static energy_cons_t energy_cons = {0};
+static uint8_t  default_energy_cons = false;
+static uint8_t  protect_on = 0;
+static bool     new_energy_save = false;
+
+ev_timer_event_t *timerAutoRestartEvt = NULL;
+
 static uint8_t  pkt_out[2] = {0x58, 0xAA};
 static uint8_t  pkt_in[PKT_SIZE] = {0};
 static uint16_t current, current_prot[4], voltage, voltage_prot[4], freq;
 static int16_t  power, power_prot[4];
 static uint64_t cur_sum_delivered;
 static uint32_t new_energy, old_energy = 0;
-static uint8_t  default_energy_cons = false;
 static uint8_t  first_start = true;
-static bool     new_energy_save = false;
-static uint8_t  protect_on = 0;
 static uint8_t  onoff_state = 0;
-static energy_cons_t energy_cons = {0};
-
-ev_timer_event_t *timerAutoRestartEvt = NULL;
 
 #if UART_PRINTF_MODE && DEBUG_PACKAGE
 void static print_package(uint8_t *head, uint8_t *buff, size_t len) {
@@ -51,7 +54,6 @@ void static print_package(uint8_t *head, uint8_t *buff, size_t len) {
 
 }
 #endif
-
 
 static uint8_t checksum(uint8_t *data, uint16_t length) {
 
@@ -98,16 +100,6 @@ static void send_uart_commandCb(void *args) {
 
 //    return len;
 }
-
-//static void clear_user_data(uint32_t flash_addr) {
-//
-//    uint32_t flash_data_size = flash_addr + USER_DATA_SIZE;
-//
-//    while(flash_addr < flash_data_size) {
-//        flash_erase_sector(flash_addr);
-//        flash_addr += FLASH_SECTOR_SIZE;
-//    }
-//}
 
 static void energy_saveCb(void *args) {
 
@@ -170,14 +162,6 @@ static int32_t auto_restartCb(void *args) {
 
     timerAutoRestartEvt = NULL;
     return -1;
-}
-
-void clear_auto_restart() {
-
-    protect_on = 0;
-
-    if (timerAutoRestartEvt) TL_ZB_TIMER_CANCEL(&timerAutoRestartEvt);
-
 }
 
 int32_t app_monitoringCb(void *arg) {
@@ -331,6 +315,23 @@ void monitoring_handler() {
     }
 }
 
+int32_t energy_timerCb(void *args) {
+
+    if (new_energy_save) {
+        TL_SCHEDULE_TASK(energy_saveCb, NULL);
+    }
+
+    return 0;
+}
+
+void clear_auto_restart() {
+
+    protect_on = 0;
+
+    if (timerAutoRestartEvt) TL_ZB_TIMER_CANCEL(&timerAutoRestartEvt);
+
+}
+
 void energy_restore() {
 
     energy_cons_t energy_curr, energy_next;
@@ -386,14 +387,6 @@ void energy_save() {
     new_energy_save = true;
 }
 
-int32_t energy_timerCb(void *args) {
-
-    if (new_energy_save) {
-        TL_SCHEDULE_TASK(energy_saveCb, NULL);
-    }
-
-    return 0;
-}
 
 void energy_remove() {
 
@@ -401,5 +394,9 @@ void energy_remove() {
         printf("Energy removed\r\n");
 #endif /* UART_PRINTF_MODE */
 
+#if !WITHOUT_MONITORING
     init_default_energy_cons();
+#endif
 }
+
+#endif

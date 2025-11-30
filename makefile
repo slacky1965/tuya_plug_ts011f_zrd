@@ -75,7 +75,9 @@ GCC_FLAGS := \
 -finline-small-functions \
 -std=gnu99 \
 -fshort-wchar \
--fms-extensions
+-fms-extensions \
+-nostartfiles \
+-nostdlib
 
 ifeq ($(strip $(ZCL_VERSION_FILE)),)
 GCC_FLAGS += \
@@ -154,11 +156,17 @@ flash-bootloader:
 reset:
 	@python3 $(TOOLS_PATH)/TlsrPgm.py -p$(DOWNLOAD_PORT) -z11 -a 100 -s -t50 -a2550 -m -w i
 
-flash-orig-write:
+flash-orig-write-1M:
 	@python3 $(TOOLS_PATH)/TlsrPgm.py -p$(DOWNLOAD_PORT) -z11 -a 100 -s -m we 0 $(BIN_PATH)/orig/tuya_plug_ts011f_orig_TZ3000_w0qqde0g.bin
 	
-flash-orig-read:
+flash-orig-read-1M:
 	@python3 $(TOOLS_PATH)/TlsrPgm.py -p$(DOWNLOAD_PORT) -z11 -a 100 -s -m rf 0 0x100000 tuya_plug_ts011f_orig.bin
+	
+flash-orig-write-512K:
+	@python3 $(TOOLS_PATH)/TlsrPgm.py -p$(DOWNLOAD_PORT) -z11 -a 100 -s -m we 0 $(BIN_PATH)/orig/tuya_plug_ts011f_TZ3000_gjnozsaz_512K_orig.bin
+	
+flash-orig-read-512K:
+	@python3 $(TOOLS_PATH)/TlsrPgm.py -p$(DOWNLOAD_PORT) -z11 -a 100 -s -m rf 0 0x80000 tuya_plug_ts011f_512K_orig.bin
 	
 erase-flash-energy:
 	@python3 $(TOOLS_PATH)/TlsrPgm.py -p$(DOWNLOAD_PORT) -z11 -a 100 -s es 0x3d000 0x3a000
@@ -173,7 +181,7 @@ main-build: clean-project $(ELF_FILE) secondary-outputs
 $(ELF_FILE): $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: TC32 C Linker'
-	$(LD) --gc-sections -L $(SDK_PATH)/zigbee/lib/tc32 -L $(SDK_PATH)/platform/lib -L $(SDK_PATH)/platform/tc32 -T $(LS_FLAGS) -o "$(ELF_FILE)" $(OBJS) $(USER_OBJS) $(LIBS) 
+	$(LD) --gc-sections -nostartfiles -L $(SDK_PATH)/zigbee/lib/tc32 -L $(SDK_PATH)/platform/lib -L $(SDK_PATH)/platform/tc32 -T $(LS_FLAGS) -o "$(ELF_FILE)" $(OBJS) $(USER_OBJS) $(LIBS) 
 	@echo 'Finished building target: $@'
 	@echo ' '
 	

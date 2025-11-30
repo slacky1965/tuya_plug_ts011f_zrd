@@ -172,7 +172,9 @@ _CODE_ZCL_ static status_t zcl_metering_clientCmdHandler(zclIncoming_t *pInMsg) 
         status = zcl_metering_requestFastPollModePrc(pInMsg);
         break;
     case ZCL_CMD_REMOVE_ENERGY:
+#if !WITHOUT_MONITORING
         energy_remove();
+#endif
         break;
     default:
         status = ZCL_STA_UNSUP_CLUSTER_COMMAND;

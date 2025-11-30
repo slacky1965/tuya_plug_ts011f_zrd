@@ -1,5 +1,7 @@
 #include "app_main.h"
 
+#if !WITHOUT_MONITORING
+
 uart_data_t rec_buff = {0,  {0, } };
 uint8_t  ring_buff[RING_BUFF_SIZE];
 uint16_t ring_head, ring_tail;
@@ -11,17 +13,17 @@ uint8_t available_ring_buff() {
     return false;
 }
 
+void flush_ring_buff() {
+    ring_head = ring_tail = 0;
+    memset(ring_buff, 0, RING_BUFF_SIZE);
+}
+
 size_t get_queue_len_ring_buff() {
    return (ring_head - ring_tail) & (RING_BUFF_MASK);
 }
 
 static size_t get_freespace_ring_buff() {
     return (sizeof(ring_buff)/sizeof(ring_buff[0]) - get_queue_len_ring_buff());
-}
-
-void flush_ring_buff() {
-    ring_head = ring_tail = 0;
-    memset(ring_buff, 0, RING_BUFF_SIZE);
 }
 
 uint8_t read_byte_from_ring_buff() {
@@ -87,16 +89,6 @@ static void app_uartRecvCb() {
     }
 }
 
-void app_uart_init() {
-
-    uint32_t baudrate = BAUDRATE_UART;
-
-    flush_ring_buff();
-    drv_uart_pin_set(GPIO_UART_TX, GPIO_UART_RX);
-
-    drv_uart_init(baudrate, (uint8_t*)&rec_buff, sizeof(uart_data_t), app_uartRecvCb);
-}
-
 void app_uart_reinit() {
 
     uint32_t baudrate = BAUDRATE_UART;
@@ -121,3 +113,15 @@ void app_uart_rx_off() {
     drv_gpio_input_en(GPIO_UART_RX, false);
 }
 
+void app_uart_init() {
+
+    flush_ring_buff();
+
+    uint32_t baudrate = BAUDRATE_UART;
+
+    drv_uart_pin_set(GPIO_UART_TX, GPIO_UART_RX);
+
+    drv_uart_init(baudrate, (uint8_t*)&rec_buff, sizeof(uart_data_t), app_uartRecvCb);
+}
+
+#endif

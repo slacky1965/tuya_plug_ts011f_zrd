@@ -293,7 +293,9 @@ void app_leaveCnfHandler(nlme_leave_cnf_t *pLeaveCnf)
 
         if (!g_appCtx.net_steer_start) {
             relay_settints_default();
+#if !WITHOUT_MONITORING
             energy_remove();
+#endif
         }
 
         zb_deviceFactoryNewSet(true);

@@ -103,7 +103,9 @@ void user_app_init(void)
 
 	start_message();
 	relay_settings_restore();
+#if !WITHOUT_MONITORING
 	energy_restore();
+#endif
 
 	/* Register ZCL specific cluster information */
     zcl_register(APP_ENDPOINT1, APP_CB_CLUSTER_NUM1, (zcl_specClusterInfo_t *)g_appClusterList1);
@@ -125,10 +127,12 @@ void user_app_init(void)
     wwah_init(WWAH_TYPE_SERVER, (af_simple_descriptor_t *)&app_simpleDesc);
 #endif
 
+#if !WITHOUT_MONITORING
     app_uart_init();
 
     TL_ZB_TIMER_SCHEDULE(app_monitoringCb, NULL, TIMEOUT_1SEC);
     TL_ZB_TIMER_SCHEDULE(energy_timerCb, NULL, TIMEOUT_1MIN);
+#endif
 
     if (zb_getLocalShortAddr() >= 0xFFF8) {
         light_blink_start(90, 250, 750);
@@ -145,9 +149,13 @@ void user_app_init(void)
 void app_task(void) {
 
     button_handler();
+#if !WITHOUT_MONITORING
     monitoring_handler();
-
     if (BDB_STATE_GET() == BDB_STATE_IDLE && !button_idle() && !available_ring_buff()) {
+#else
+    if (BDB_STATE_GET() == BDB_STATE_IDLE && !button_idle()) {
+#endif
+
         factroyRst_handler();
         report_handler();
     }

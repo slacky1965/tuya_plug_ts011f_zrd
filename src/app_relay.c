@@ -46,7 +46,9 @@ void set_relay_status(uint8_t i, uint8_t status) {
 //    printf("set_relay_status(i = %d, status = %d). GPIO: %d\r\n", i, status, dev_relay.unit_relay[i].rl);
     if (status == RELAY_ON) {
         light_on();
+#if !WITHOUT_MONITORING
         clear_auto_restart();
+#endif
     } else {
         light_off();
     }

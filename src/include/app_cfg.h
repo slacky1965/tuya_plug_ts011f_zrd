@@ -63,6 +63,11 @@ extern "C" {
 
 #include "version_cfg.h"
 
+#ifndef WITHOUT_MONITORING
+#define WITHOUT_MONITORING              ON
+#endif
+
+
 /* Debug mode config */
 #define UART_PRINTF_MODE                OFF
 #define DEBUG_SAVE	                    OFF
