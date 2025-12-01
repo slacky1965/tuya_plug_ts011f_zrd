@@ -112,8 +112,8 @@ void user_app_init(void)
 
     dev_relay_init();
 
-    #if ZCL_GP_SUPPORT
-	/* Initialize GP */
+#if ZCL_GP_SUPPORT
+    /* Initialize GP */
 	gp_init(APP_ENDPOINT1);
 #endif
 
@@ -131,7 +131,11 @@ void user_app_init(void)
     app_uart_init();
 
     TL_ZB_TIMER_SCHEDULE(app_monitoringCb, NULL, TIMEOUT_1SEC);
+#if TEST_SAVE_ENERGY
+    TL_ZB_TIMER_SCHEDULE(energy_timerCb, NULL, TIMEOUT_1SEC);
+#else
     TL_ZB_TIMER_SCHEDULE(energy_timerCb, NULL, TIMEOUT_1MIN);
+#endif
 #endif
 
     if (zb_getLocalShortAddr() >= 0xFFF8) {
@@ -146,9 +150,21 @@ void user_app_init(void)
 //    printf("USER_DATA_SIZE:  0x%x\r\n", USER_DATA_SIZE);
 }
 
+#if TEST_SAVE_ENERGY
+uint32_t tt = 0;
+#endif
+
 void app_task(void) {
 
     button_handler();
+
+#if TEST_SAVE_ENERGY
+    if(clock_time_exceed(tt, TIMEOUT_TICK_1SEC)) {
+        tt = clock_time();
+        set_energy();
+    }
+#endif
+
 #if !WITHOUT_MONITORING
     monitoring_handler();
     if (BDB_STATE_GET() == BDB_STATE_IDLE && !button_idle() && !available_ring_buff()) {

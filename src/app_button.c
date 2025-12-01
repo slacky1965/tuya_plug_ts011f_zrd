@@ -51,10 +51,13 @@ static void buttonSinglePressed(u8 btNum) {
     }
 }
 
-//static void buttonDoublePressed(u8 btNum) {
-//    printf("Command double click\r\n");
-//}
-//
+#if 0
+static void buttonDoublePressed(u8 btNum) {
+    printf("Command double click\r\n");
+    set_energy();
+}
+#endif
+
 //static void buttonTriplePressed(u8 btNum) {
 //    printf("Command triple click\r\n");
 //}
@@ -69,8 +72,10 @@ static void buttonCheckCommand(uint8_t btNum) {
 
     if (g_appCtx.button[btNum-1].ctn == 1) {
         buttonSinglePressed(btNum);
-//    } else if (g_appCtx.button[btNum-1].ctn == 2) {
-//        buttonDoublePressed(btNum);
+#if 0
+    } else if (g_appCtx.button[btNum-1].ctn == 2) {
+        buttonDoublePressed(btNum);
+#endif
 //    } else if (g_appCtx.button[btNum-1].ctn == 3) {
 //        buttonTriplePressed(btNum);
 //    } else if (g_appCtx.button[btNum-1].ctn == 4) {

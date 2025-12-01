@@ -28,7 +28,13 @@
 #include "../common/comm_cfg.h"
 
 #define APP_RELEASE                         0x10        //app release 1.0
+
+#if !WITHOUT_MONITORING
 #define APP_BUILD                           0x05        //app build 05, full version - v1.0.05
+#else
+#define APP_BUILD                           0x00        //app build 00, full version - v1.0.00
+#endif
+
 #define STACK_RELEASE                       0x30        //stack release 3.0
 #define STACK_BUILD                         0x01        //stack build 01
 #define HW_VERSION                          0x01
@@ -85,10 +91,16 @@
  * 0x1D - Tuya relay QS-Zigbee-SEC02 _TZ3000_m8f3z8ju
  * 0x1E - Tuya relay QS-Zigbee-SEC01 _TZ3000_hdc8bbha
  * 0x1F - Tuya plug TS011F with monitoring
+ * 0x20 - Tuya door/window sensor TS0203
+ * 0x21 - Tuya plug TS011F with monitoring 512 kb version
  *
  */
 
+#if FLASH_SIZE == 1024
 #define IMAGE_TYPE_APP          (0x1F | (IMAGE_TYPE_BOOT_FLAG << 7))
+#else
+#define IMAGE_TYPE_APP          (0x21 | (IMAGE_TYPE_BOOT_FLAG << 7))
+#endif
 
 /*********************************************************************************************
  * During OTA upgrade, the upgraded device will check the rules of the following three fields.

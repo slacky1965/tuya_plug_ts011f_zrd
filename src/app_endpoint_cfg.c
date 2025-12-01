@@ -62,9 +62,9 @@ const uint16_t app_ep1_inClusterList[] = {
  *  @brief Definition for Outgoing cluster / Client Cluster
  */
 const uint16_t app_ep1_outClusterList[] = {
-#ifdef ZCL_ON_OFF
-    ZCL_CLUSTER_GEN_ON_OFF,
-#endif
+//#ifdef ZCL_ON_OFF
+//    ZCL_CLUSTER_GEN_ON_OFF,
+//#endif
 #ifdef ZCL_OTA
     ZCL_CLUSTER_OTA,
 #endif

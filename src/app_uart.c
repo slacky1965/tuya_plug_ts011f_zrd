@@ -19,7 +19,7 @@ void flush_ring_buff() {
 }
 
 size_t get_queue_len_ring_buff() {
-   return (ring_head - ring_tail) & (RING_BUFF_MASK);
+   return (ring_head - ring_tail) & RING_BUFF_MASK;
 }
 
 static size_t get_freespace_ring_buff() {

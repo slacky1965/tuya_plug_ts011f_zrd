@@ -29,6 +29,7 @@
 
 #define OTA1_FADDR              0x000000
 #define OTA2_FADDR              0x020000
+#define OTA3_FADDR              0x009000
 #define BIG_OTA1_FADDR          0x000000 // Big OTA1
 #define BIG_OTA2_FADDR          0x040000 // Big OTA2
 #define ZIGBEE_BOOT_OTA_FADDR   0x008000
@@ -61,10 +62,14 @@ _attribute_ram_code_ void tuya_zigbee_ota(void) {
     // search for start firmware address 0x008000 or 0x020000 ?
     app_flash_read_page(faddrr, 16, (unsigned char *) &buf_blk);
     if(buf_blk[2] != id) { // 0x008000 != bootable
-        faddrr = OTA2_FADDR;
+        faddrr = OTA3_FADDR;
         app_flash_read_page(faddrr, 16, (unsigned char *) &buf_blk);
-        if(buf_blk[2] != id) // 0x020000 != bootable
-            return;
+        if(buf_blk[2] != id) { // 0x009000 != bootable
+            faddrr = OTA2_FADDR;
+            app_flash_read_page(faddrr, 16, (unsigned char *) &buf_blk);
+            if(buf_blk[2] != id) // 0x020000 != bootable
+                return;
+        }
     }
     // faddrr: 0x008000 == bootable || 0x020000 == bootable
     app_flash_read_page(faddrr, sizeof(buf_blk), (unsigned char *) &buf_blk);
@@ -90,6 +95,11 @@ _attribute_ram_code_ void tuya_zigbee_ota(void) {
         }
         // set id "bootable" to new segment
         app_flash_write_page(BIG_OTA1_FADDR+8, sizeof(id), (unsigned char *) &id);
+#if FLASH_SIZE == 1024
+        app_flash_erase_sector(ZIGBEE_MAC_FADDR);
+#else
+        app_flash_erase_sector(BLE_MAC_FADDR);
+#endif
         while(1)
             reg_pwdn_ctrl = BIT(5);
     }
@@ -152,7 +162,11 @@ int flash_main(void){
 
 _attribute_ram_code_ int main(void) {
 
+#if FLASH_SIZE == 1024
     if(*(u32 *)(ZIGBEE_BOOT_OTA_FADDR + 8) == ID_BOOTABLE || flag_addr_ok != 0x33CC55AA) {
+#else
+    if(*(u32 *)(ZIGBEE_BOOT_OTA_FADDR + 8) == ID_BOOTABLE || *(u32 *)(OTA3_FADDR + 8) == ID_BOOTABLE || flag_addr_ok != 0x33CC55AA) {
+#endif
         // clock_init(SYS_CLK_24M_Crystal);
         tuya_zigbee_ota();
     }

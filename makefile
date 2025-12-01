@@ -4,6 +4,29 @@ PROJECT_NAME := tuya_plug_ts011f_zrd
 # Set the serial port number for downloading the firmware
 DOWNLOAD_PORT := COM3
 
+FLASH ?= 1024
+OTA ?= FW
+
+ifeq ($(FLASH),512)
+	FLASH_SIZE = 512
+else
+	ifeq ($(FLASH),1024)
+		FLASH_SIZE = 1024
+	else
+		FLASH_SIZE = 1024
+	endif
+endif
+
+ifeq ($(OTA),OTA)
+	DEVICE_TYPE = -DEND_DEVICE=1
+	LIBS := -lzb_ed -ldrivers_8258
+	WITHOUT_MONITORING = 1
+else
+	DEVICE_TYPE = -DROUTER=1
+	LIBS := -lzb_router -ldrivers_8258 -lsoft-fp
+	WITHOUT_MONITORING = 0
+endif
+
 COMPILE_OS = $(shell uname -o)
 LINUX_OS = GNU/Linux
 
@@ -22,10 +45,6 @@ OBJDUMP = $(COMPILE_PREFIX)-elf-objdump
 ARCH	= $(COMPILE_PREFIX)-elf-ar
 SIZE	= $(COMPILE_PREFIX)-elf-size
 
-LIBS := -lzb_router -ldrivers_8258 -lsoft-fp
-
-
-DEVICE_TYPE = -DROUTER=1
 MCU_TYPE = -DMCU_CORE_8258=1
 BOOT_FLAG = -DMCU_CORE_8258 -DMCU_STARTUP_8258
 
@@ -89,7 +108,9 @@ endif
   
 GCC_FLAGS += \
 $(DEVICE_TYPE) \
-$(MCU_TYPE)
+$(MCU_TYPE) \
+-DWITHOUT_MONITORING=$(WITHOUT_MONITORING) \
+-DFLASH_SIZE=$(FLASH_SIZE)
 
 OBJ_SRCS := 
 S_SRCS := 
@@ -173,6 +194,11 @@ erase-flash-energy:
 
 test-flash:
 	@python3 $(TOOLS_PATH)/TlsrPgm.py -p$(DOWNLOAD_PORT) -z11 -s i
+	
+test:
+	@echo FLASH_SIZE = $(FLASH_SIZE)
+	@echo WITHOUT_MONITORING = $(WITHOUT_MONITORING)
+	@echo GCC_FLAGS = $(GCC_FLAGS)
 
 # Main-build Target
 main-build: clean-project $(ELF_FILE) secondary-outputs
@@ -193,19 +219,48 @@ $(LST_FILE): $(ELF_FILE)
 	@echo ' '
 	
 
+ifeq ($(FLASH),512)
+
+ifeq ($(OTA),OTA)	
 $(BIN_FILE): $(ELF_FILE)
 	@echo 'Create Flash image (binary format)'
 	@$(OBJCOPY) -v -O binary $(ELF_FILE)  $(BIN_FILE)
 	@python3 $(TL_CHECK) $(BIN_FILE)
-	@cp $(BIN_FILE) $(BIN_PATH)/$(PROJECT_NAME)_$(VERSION_RELEASE).$(VERSION_BUILD).bin
-	@echo 'Create zigbee OTA file'
-	@python3 $(MAKE_OTA) -t $(PROJECT_NAME) -s "Slacky-DIY OTA" $(BIN_PATH)/$(PROJECT_NAME)_$(VERSION_RELEASE).$(VERSION_BUILD).bin 
+	@cp $(BIN_FILE) $(BIN_PATH)/ota.bin
 	@echo 'Create zigbee Tuya OTA file'
-	@python3 $(MAKE_OTA) -t $(PROJECT_NAME) -m 4417 -i 54179 -v0x1111114b -s "Slacky-DIY OTA" $(BIN_PATH)/$(PROJECT_NAME)_$(VERSION_RELEASE).$(VERSION_BUILD).bin   
-	@python3 $(MAKE_OTA) -t $(PROJECT_NAME) -m 4742 -i 2 -v0x1111114b -s "Slacky-DIY OTA" $(BIN_PATH)/$(PROJECT_NAME)_$(VERSION_RELEASE).$(VERSION_BUILD).bin   
+	@python3 $(MAKE_OTA) -t $(PROJECT_NAME) -m 4742 -i 2 -v0x1111114b -s "Slacky-DIY OTA" $(BIN_PATH)/ota.bin
+	-$(RM) $(BIN_PATH)/ota.bin   
 	@echo ' '
 	@echo 'Finished building: $@'
 	@echo ' '
+else
+$(BIN_FILE): $(ELF_FILE)
+	@echo 'Create Flash image (binary format)'
+	@$(OBJCOPY) -v -O binary $(ELF_FILE)  $(BIN_FILE)
+	@python3 $(TL_CHECK) $(BIN_FILE)
+	@cp $(BIN_FILE) $(BIN_PATH)/$(PROJECT_NAME)_$(VERSION_RELEASE).$(VERSION_BUILD)_512.bin
+	@echo 'Create zigbee OTA file'
+	@python3 $(MAKE_OTA) -t $(PROJECT_NAME) -s "Slacky-DIY OTA" $(BIN_PATH)/$(PROJECT_NAME)_$(VERSION_RELEASE).$(VERSION_BUILD)_512.bin 
+	@echo ' '
+	@echo 'Finished building: $@'
+	@echo ' '
+endif
+
+else
+$(BIN_FILE): $(ELF_FILE)
+	@echo 'Create Flash image (binary format)'
+	@$(OBJCOPY) -v -O binary $(ELF_FILE)  $(BIN_FILE)
+	@python3 $(TL_CHECK) $(BIN_FILE)
+	@cp $(BIN_FILE) $(BIN_PATH)/$(PROJECT_NAME)_$(VERSION_RELEASE).$(VERSION_BUILD)_1024.bin
+	@echo 'Create zigbee OTA file'
+	@python3 $(MAKE_OTA) -t $(PROJECT_NAME) -s "Slacky-DIY OTA" $(BIN_PATH)/$(PROJECT_NAME)_$(VERSION_RELEASE).$(VERSION_BUILD)_1024.bin 
+	@echo 'Create zigbee Tuya OTA file'
+	@python3 $(MAKE_OTA) -t $(PROJECT_NAME) -m 4417 -i 54179 -v0x1111114b -s "Slacky-DIY OTA" $(BIN_PATH)/$(PROJECT_NAME)_$(VERSION_RELEASE).$(VERSION_BUILD)_1024.bin   
+	@echo ' '
+	@echo 'Finished building: $@'
+	@echo ' '	
+endif
+
 
 sizedummy: $(ELF_FILE)
 	@echo 'Invoking: Print Size'
@@ -216,14 +271,18 @@ sizedummy: $(ELF_FILE)
 # Other Targets
 clean:
 	@echo $(INCLUDE_PATHS)
-	-$(RM) $(FLASH_IMAGE) $(ELFS) $(OBJS) $(SIZEDUMMY) $(LST_FILE) $(ELF_FILE) $(BIN_PATH)/*.bin $(BIN_PATH)/*.zigbee
+	-$(RM) $(FLASH_IMAGE) $(ELFS) $(OBJS) $(SIZEDUMMY) $(LST_FILE) $(ELF_FILE)
 	-@echo ' '
 
 clean-project:
-	-$(RM) $(FLASH_IMAGE) $(ELFS) $(SIZEDUMMY) $(LST_FILE) $(ELF_FILE) $(BIN_PATH)/*.bin $(BIN_PATH)/*.zigbee
+	-$(RM) $(FLASH_IMAGE) $(ELFS) $(SIZEDUMMY) $(LST_FILE)
 	-$(RM) -R $(OUT_PATH)/$(SRC_PATH)/*.o
 	-@echo ' '
 	
+clean-bin:
+	-$(RM) $(BIN_PATH)/*.bin $(BIN_PATH)/*.zigbee
+	-@echo ' '
+
 pre-build:
 	mkdir -p $(foreach s,$(OUT_DIR),$(OUT_PATH)$(s))
 #	-" $(SDK_PATH)/tools/tl_link_load.sh" " $(SDK_PATH)/platform/boot/8258/boot_8258.link" "C:\TelinkSDK\SDK\tl_zigbee_sdk\build\tlsr_tc32/boot.link"

@@ -38,6 +38,14 @@ extern "C" {
     #define MCU_CORE_8258       1
 #endif
 
+#ifndef FLASH_SIZE
+    #define FLASH_SIZE          1024
+#endif
+
+#ifndef WITHOUT_MONITORING
+    #define WITHOUT_MONITORING  0
+#endif
+
 #define ON                      1
 #define OFF                     0
 
@@ -64,13 +72,14 @@ extern "C" {
 #include "version_cfg.h"
 
 #ifndef WITHOUT_MONITORING
-#define WITHOUT_MONITORING              ON
+#define WITHOUT_MONITORING              OFF
 #endif
 
+#define TEST_SAVE_ENERGY                OFF
 
 /* Debug mode config */
-#define UART_PRINTF_MODE                OFF
-#define DEBUG_SAVE	                    OFF
+#define UART_PRINTF_MODE                ON
+#define DEBUG_SAVE	                    ON
 #define DEBUG_BUTTON                    ON
 #define DEBUG_SWITCH                    OFF
 #define DEBUG_MONITORING                OFF
@@ -116,22 +125,36 @@ extern "C" {
 #elif defined(MCU_CORE_8258)
 #if (CHIP_TYPE == TLSR_8258_1M)
     #define FLASH_CAP_SIZE_1M           1
-    /********************** For 1M Flash only (bootloader mode) *********************************/
+    /********************** For 1M Flash only *********************************/
     /* Flash map:
-        0x00000  bootloader
-        0x08000  Firmware
-        0x77000  OTA Image
-        0xE6000  NV
+        0x00000  Firmware
+        0x40000  OTA Image
+        0x80000  NV
+        0x96000  Reserved       // User Area - saved energy
         0xFC000  U_Cfg_Info
         0xFE000  F_Cfg_Info
         0xFF000  MAC address
         0x100000 End Flash
      */
-//    #define OTA_ADDRESS                 0x70000 // 0x77000 address rewriting for Tuya bootloader
-//    #define FW_DATA_SIZE                0x35000                                 // max size of firmware
-    #define BEGIN_USER_DATA             0x96000   // (FLASH_ADDR_OF_APP_FW + FW_DATA_SIZE)   // begin address for saving energy
-    #define END_USER_DATA               0xFC000   // (BEGIN_USER_DATA + USER_DATA_SIZE)
-    #define USER_DATA_SIZE              (END_USER_DATA - BEGIN_USER_DATA)   //(FLASH_ADDR_OF_OTA_IMAGE - BEGIN_USER_DATA)
+    #define BEGIN_USER_DATA             0x96000   // begin address for saving energy
+    #define END_USER_DATA               0xFC000   // end address
+    #define USER_DATA_SIZE              (END_USER_DATA - BEGIN_USER_DATA)
+#else
+    /********************** For 1M Flash only *********************************/
+    /* Flash map:
+        0x00000  Firmware
+        0x34000  NV_1
+        0x40000  OTA Image
+        0x72000  Custom User Area - saved energy
+        0x76000  MAC address
+        0x77000  F_Cfg_Info
+        0x78000  U_Cfg_Info
+        0x7A000  NV_2
+        0x80000  End Flash
+     */
+    #define BEGIN_USER_DATA             0x73000   // begin address for saving energy
+    #define END_USER_DATA               0x76000   // end address
+    #define USER_DATA_SIZE              (END_USER_DATA - BEGIN_USER_DATA)
 #endif
     #define BOARD                       BOARD_TUYA_TS011F
     #define CLOCK_SYS_CLOCK_HZ          48000000
@@ -209,16 +232,18 @@ extern "C" {
 /**********************************************************************
  * ZCL cluster support setting
  */
-#define ZCL_GROUP_SUPPORT                           ON
-#define ZCL_SCENE_SUPPORT                           ON
-#define ZCL_ON_OFF_SUPPORT                          ON
-#define ZCL_OTA_SUPPORT                             ON
-#define ZCL_GP_SUPPORT                              ON
-#define ZCL_METERING_SUPPORT                        ON
-#define ZCL_ELECTRICAL_MEASUREMENT_SUPPORT          ON
+#if !WITHOUT_MONITORING
 #if TOUCHLINK_SUPPORT
 #define ZCL_ZLL_COMMISSIONING_SUPPORT               ON
 #endif
+#define ZCL_GROUP_SUPPORT                           ON
+#define ZCL_SCENE_SUPPORT                           ON
+#define ZCL_GP_SUPPORT                              ON
+#endif
+#define ZCL_ON_OFF_SUPPORT                          ON
+#define ZCL_OTA_SUPPORT                             ON
+#define ZCL_METERING_SUPPORT                        ON
+#define ZCL_ELECTRICAL_MEASUREMENT_SUPPORT          ON
 
 /**********************************************************************
  * Stack configuration

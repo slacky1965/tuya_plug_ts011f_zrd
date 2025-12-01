@@ -1,9 +1,9 @@
 #ifndef SRC_INCLUDE_APP_UART_H_
 #define SRC_INCLUDE_APP_UART_H_
 
-#define UART_DATA_LEN   188
-#define RING_BUFF_SIZE  512               /* size ring buffer  */
-#define RING_BUFF_MASK  RING_BUFF_SIZE-1  /* mask ring buffer  */
+#define UART_DATA_LEN   32
+#define RING_BUFF_SIZE  64                  /* size ring buffer  */
+#define RING_BUFF_MASK  (RING_BUFF_SIZE-1)  /* mask ring buffer  */
 
 typedef enum {
     UART_TX_SUCCESS,
