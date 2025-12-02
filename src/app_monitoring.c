@@ -6,8 +6,11 @@
 #define BL0942_CURRENT_REF      251213.46469622
 #define BL0942_ENERGY_REF       3304.61127328
 
-#define ID_ENERGY               0x0FED1410
-#define TOP_MASK                0xFFFFFFFF
+#define ID_ENERGY_OLD           0x0FED1410
+#define TOP_MASK_OLD            0xFFFFFFFF
+#define ID_ENERGY               0x2DEF
+#define TOP_MASK                0xFFFF
+#define FLASH_SAVE_SIZE         0x10
 #define PROTECT_VOLTAGE         0x01
 #define PROTECT_CURRENT         0x02
 #define PROTECT_POWER           0x04
@@ -120,9 +123,10 @@ static void energy_saveCb(void *args) {
         default_energy_cons = false;
 #if UART_PRINTF_MODE && DEBUG_SAVE
         printf("Save energy_cons to flash address - 0x%x\r\n", energy_cons.flash_addr_start);
+        printf("id: 0x%04x, crc1: 0x%x, crc2: 0x%x\r\n", energy_cons.id, checksum((uint8_t*)&energy_cons, sizeof(energy_cons_t)), energy_cons.crc);
 #endif /* UART_PRINTF_MODE */
     } else {
-        energy_cons.flash_addr_start += FLASH_PAGE_SIZE;
+        energy_cons.flash_addr_start += FLASH_SAVE_SIZE;
         if (energy_cons.flash_addr_start == END_USER_DATA) {
             energy_cons.flash_addr_start = BEGIN_USER_DATA;
         }
@@ -135,6 +139,7 @@ static void energy_saveCb(void *args) {
         flash_write(energy_cons.flash_addr_start, sizeof(energy_cons_t), (uint8_t*)&(energy_cons));
 #if UART_PRINTF_MODE && DEBUG_SAVE
         printf("Save energy_cons to flash address - 0x%x\r\n", energy_cons.flash_addr_start);
+        printf("id: 0x%04x, crc1: 0x%x, crc2: 0x%x\r\n", energy_cons.id, checksum((uint8_t*)&energy_cons, sizeof(energy_cons_t)), energy_cons.crc);
 #endif /* UART_PRINTF_MODE */
 
     }
@@ -142,13 +147,12 @@ static void energy_saveCb(void *args) {
     new_energy_save = false;
 }
 
-
 static void init_default_energy_cons() {
     flash_erase_sector(BEGIN_USER_DATA);
     memset(&energy_cons, 0, sizeof(energy_cons_t));
     energy_cons.id = ID_ENERGY;
     energy_cons.flash_addr_start = BEGIN_USER_DATA;
-    energy_cons.flash_addr_end = END_USER_DATA;
+//    energy_cons.flash_addr_end = END_USER_DATA;
     g_zcl_seAttrs.cur_sum_delivered = 0;
     default_energy_cons = true;
     energy_saveCb(NULL);
@@ -331,7 +335,58 @@ void monitoring_handler() {
     }
 }
 
-void energy_restore() {
+static void energy_restore_old() {
+
+    energy_cons_old_t energy_cons_curr, energy_cons_next;
+    uint8_t find_config = false;
+
+    uint32_t flash_addr = BEGIN_USER_DATA;
+
+    flash_read_page(flash_addr, sizeof(energy_cons_old_t), (uint8_t*)&energy_cons_curr);
+
+    if (energy_cons_curr.id != ID_ENERGY_OLD || checksum((uint8_t*)&energy_cons_curr, sizeof(energy_cons_old_t)) != energy_cons_curr.crc) {
+#if UART_PRINTF_MODE && DEBUG_SAVE
+        printf("No saved energy_cons! Init.\r\n");
+#endif /* UART_PRINTF_MODE */
+        init_default_energy_cons();
+        return;
+    }
+
+    flash_addr += FLASH_PAGE_SIZE;
+
+    while(flash_addr < END_USER_DATA) {
+        flash_read_page(flash_addr, sizeof(energy_cons_old_t), (uint8_t*)&energy_cons_next);
+        if (energy_cons_next.id == ID_ENERGY_OLD && checksum((uint8_t*)&energy_cons_next, sizeof(energy_cons_old_t)) == energy_cons_next.crc) {
+            if ((energy_cons_curr.top + 1) == energy_cons_next.top || (energy_cons_curr.top == TOP_MASK_OLD && energy_cons_next.top == 0)) {
+                memcpy(&energy_cons_curr, &energy_cons_next, sizeof(energy_cons_old_t));
+                flash_addr += FLASH_PAGE_SIZE;
+                continue;
+            }
+            find_config = true;
+            break;
+        }
+        find_config = true;
+        break;
+    }
+
+    if (find_config) {
+        init_default_energy_cons();
+        energy_cons.energy = energy_cons_curr.energy;
+        energy_saveCb(NULL);
+        g_zcl_seAttrs.cur_sum_delivered = energy_cons.energy;
+#if UART_PRINTF_MODE && DEBUG_SAVE
+        printf("Read energy_cons from flash address - 0x%x\r\n", flash_addr-FLASH_PAGE_SIZE);
+#endif /* UART_PRINTF_MODE */
+    } else {
+#if UART_PRINTF_MODE && DEBUG_SAVE
+        printf("No active saved energy_cons! Reinit.\r\n");
+#endif /* UART_PRINTF_MODE */
+        init_default_energy_cons();
+    }
+
+}
+
+static void energy_restore_new() {
 
     energy_cons_t energy_curr, energy_next;
     uint8_t find_config = false;
@@ -348,14 +403,14 @@ void energy_restore() {
         return;
     }
 
-    flash_addr += FLASH_PAGE_SIZE;
+    flash_addr += FLASH_SAVE_SIZE;
 
     while(flash_addr < END_USER_DATA) {
         flash_read_page(flash_addr, sizeof(energy_cons_t), (uint8_t*)&energy_next);
         if (energy_next.id == ID_ENERGY && checksum((uint8_t*)&energy_next, sizeof(energy_cons_t)) == energy_next.crc) {
             if ((energy_curr.top + 1) == energy_next.top || (energy_curr.top == TOP_MASK && energy_next.top == 0)) {
                 memcpy(&energy_curr, &energy_next, sizeof(energy_cons_t));
-                flash_addr += FLASH_PAGE_SIZE;
+                flash_addr += FLASH_SAVE_SIZE;
                 continue;
             }
             find_config = true;
@@ -367,7 +422,7 @@ void energy_restore() {
 
     if (find_config) {
         memcpy(&energy_cons, &energy_curr, sizeof(energy_cons_t));
-        energy_cons.flash_addr_start = flash_addr-FLASH_PAGE_SIZE;
+        energy_cons.flash_addr_start = flash_addr-FLASH_SAVE_SIZE;
         g_zcl_seAttrs.cur_sum_delivered = energy_cons.energy;
 #if UART_PRINTF_MODE && DEBUG_SAVE
         printf("Read energy_cons from flash address - 0x%x\r\n", energy_cons.flash_addr_start);
@@ -379,6 +434,17 @@ void energy_restore() {
         init_default_energy_cons();
     }
 
+}
+
+
+void energy_restore() {
+
+    energy_cons_old_t energy_cons_old;
+
+    flash_read_page(BEGIN_USER_DATA, sizeof(energy_cons_old_t), (uint8_t*)&energy_cons_old);
+
+    if (energy_cons_old.id == ID_ENERGY_OLD) energy_restore_old();
+    else energy_restore_new();
 }
 
 void energy_save() {
@@ -403,3 +469,17 @@ void energy_remove() {
 
     init_default_energy_cons();
 }
+
+#if TEST_SAVE_ENERGY
+void set_energy() {
+    new_energy = old_energy + 1;
+    if (new_energy > old_energy) {
+//        printf("new_energy: %d > old_energy: %d\r\n", new_energy, old_energy);
+        cur_sum_delivered = (uint64_t)(energy_cons.energy + (new_energy - old_energy)) & 0xFFFFFFFFFFFF;
+        old_energy = new_energy;
+        energy_cons.energy = cur_sum_delivered;
+        energy_save();
+        zcl_setAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_SE_METERING, ZCL_ATTRID_CURRENT_SUMMATION_DELIVERD, (uint8_t*)&cur_sum_delivered);
+    }
+}
+#endif

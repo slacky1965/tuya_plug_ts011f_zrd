@@ -28,7 +28,17 @@ typedef struct __attribute__((packed)) {
     uint32_t flash_addr_end;            /* flash page address end   */
     uint64_t energy;
     uint8_t     crc;
-} energy_cons_t;
+} energy_cons_old_t;
+
+typedef struct __attribute__((packed)) {
+    uint16_t id;                        /* ID_ENERGY                */
+    uint16_t top;                       /* 0x0 .. 0xFFFF            */
+    uint32_t flash_addr_start;          /* flash page address start */
+    uint64_t energy :48;
+    uint8_t  res    :8;
+    uint8_t  crc    :8;
+} energy_cons_t;                        /* size 16 byte             */
+
 
 int32_t app_monitoringCb(void *arg);
 int32_t energy_timerCb(void *args);
@@ -37,5 +47,7 @@ void energy_restore();
 void energy_save();
 void energy_remove();
 void clear_auto_restart();
+void set_energy();
+
 
 #endif /* SRC_INCLUDE_APP_MONITORING_H_ */
