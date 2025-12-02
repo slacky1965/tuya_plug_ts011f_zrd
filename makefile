@@ -46,7 +46,7 @@ ARCH	= $(COMPILE_PREFIX)-elf-ar
 SIZE	= $(COMPILE_PREFIX)-elf-size
 
 MCU_TYPE = -DMCU_CORE_8258=1
-BOOT_FLAG = -DMCU_CORE_8258 -DMCU_STARTUP_8258
+BOOT_FLAG = -DMCU_CORE_8258 -DMCU_STARTUP_8258 -DWITHOUT_MONITORING=$(WITHOUT_MONITORING)
 
 SDK_PATH := ./tl_zigbee_sdk
 SRC_PATH := ./src
@@ -163,6 +163,12 @@ all: pre-build main-build
 flash8000: $(BIN_FILE)
 	@python3 $(TOOLS_PATH)/TlsrPgm.py -p$(DOWNLOAD_PORT) -z11 -a 100 -s -m we 0x8000 $(BIN_FILE)
 
+flash9000: $(BIN_FILE)
+	@python3 $(TOOLS_PATH)/TlsrPgm.py -p$(DOWNLOAD_PORT) -z11 -a 100 -s -m we 0x9000 $(BIN_FILE)
+
+flash44000: $(BIN_FILE)
+	@python3 $(TOOLS_PATH)/TlsrPgm.py -p$(DOWNLOAD_PORT) -z11 -a 100 -s -m we 0x44000 $(BIN_FILE)
+
 flash0: $(BIN_FILE)
 	@python3 $(TOOLS_PATH)/TlsrPgm.py -p$(DOWNLOAD_PORT) -z11 -a 100 -s -m we 0 $(BIN_FILE)
 
@@ -229,7 +235,7 @@ $(BIN_FILE): $(ELF_FILE)
 	@cp $(BIN_FILE) $(BIN_PATH)/ota.bin
 	@echo 'Create zigbee Tuya OTA file'
 	@python3 $(MAKE_OTA) -t $(PROJECT_NAME) -m 4742 -i 2 -v0x1111114b -s "Slacky-DIY OTA" $(BIN_PATH)/ota.bin
-	-$(RM) $(BIN_PATH)/ota.bin   
+#	-$(RM) $(BIN_PATH)/ota.bin   
 	@echo ' '
 	@echo 'Finished building: $@'
 	@echo ' '
