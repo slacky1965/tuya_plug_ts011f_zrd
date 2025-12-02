@@ -122,8 +122,8 @@ static void energy_saveCb(void *args) {
         flash_write(energy_cons.flash_addr_start, sizeof(energy_cons_t), (uint8_t*)&(energy_cons));
         default_energy_cons = false;
 #if UART_PRINTF_MODE && DEBUG_SAVE
-        printf("Save energy_cons to flash address - 0x%x\r\n", energy_cons.flash_addr_start);
-        printf("id: 0x%04x, crc1: 0x%x, crc2: 0x%x\r\n", energy_cons.id, checksum((uint8_t*)&energy_cons, sizeof(energy_cons_t)), energy_cons.crc);
+        printf("Save energy_cons to flash address - 0x%x, top: %d\r\n", energy_cons.flash_addr_start, energy_cons.top);
+//        printf("id: 0x%04x, crc1: 0x%x, crc2: 0x%x\r\n", energy_cons.id, checksum((uint8_t*)&energy_cons, sizeof(energy_cons_t)), energy_cons.crc);
 #endif /* UART_PRINTF_MODE */
     } else {
         energy_cons.flash_addr_start += FLASH_SAVE_SIZE;
@@ -138,8 +138,8 @@ static void energy_saveCb(void *args) {
         energy_cons.crc = checksum((uint8_t*)&(energy_cons), sizeof(energy_cons_t));
         flash_write(energy_cons.flash_addr_start, sizeof(energy_cons_t), (uint8_t*)&(energy_cons));
 #if UART_PRINTF_MODE && DEBUG_SAVE
-        printf("Save energy_cons to flash address - 0x%x\r\n", energy_cons.flash_addr_start);
-        printf("id: 0x%04x, crc1: 0x%x, crc2: 0x%x\r\n", energy_cons.id, checksum((uint8_t*)&energy_cons, sizeof(energy_cons_t)), energy_cons.crc);
+        printf("Save energy_cons to flash address - 0x%x, top: %d\r\n", energy_cons.flash_addr_start, energy_cons.top);
+//        printf("id: 0x%04x, crc1: 0x%x, crc2: 0x%x\r\n", energy_cons.id, checksum((uint8_t*)&energy_cons, sizeof(energy_cons_t)), energy_cons.crc);
 #endif /* UART_PRINTF_MODE */
 
     }
@@ -425,7 +425,7 @@ static void energy_restore_new() {
         energy_cons.flash_addr_start = flash_addr-FLASH_SAVE_SIZE;
         g_zcl_seAttrs.cur_sum_delivered = energy_cons.energy;
 #if UART_PRINTF_MODE && DEBUG_SAVE
-        printf("Read energy_cons from flash address - 0x%x\r\n", energy_cons.flash_addr_start);
+        printf("Read energy_cons from flash address - 0x%x, top: %d\r\n", energy_cons.flash_addr_start, energy_cons.top);
 #endif /* UART_PRINTF_MODE */
     } else {
 #if UART_PRINTF_MODE && DEBUG_SAVE
