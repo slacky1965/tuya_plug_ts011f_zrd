@@ -403,3 +403,17 @@ void energy_remove() {
 
     init_default_energy_cons();
 }
+
+#if TEST_SAVE_ENERGY
+void set_energy() {
+    new_energy = old_energy + 1;
+    if (new_energy > old_energy) {
+//        printf("new_energy: %d > old_energy: %d\r\n", new_energy, old_energy);
+        cur_sum_delivered = (uint64_t)(energy_cons.energy + (new_energy - old_energy)) & 0xFFFFFFFFFFFF;
+        old_energy = new_energy;
+        energy_cons.energy = cur_sum_delivered;
+        energy_save();
+        zcl_setAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_SE_METERING, ZCL_ATTRID_CURRENT_SUMMATION_DELIVERD, (uint8_t*)&cur_sum_delivered);
+    }
+}
+#endif

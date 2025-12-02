@@ -128,7 +128,12 @@ void user_app_init(void)
     app_uart_init();
 
     TL_ZB_TIMER_SCHEDULE(app_monitoringCb, NULL, TIMEOUT_1SEC);
+
+    #if TEST_SAVE_ENERGY
+    TL_ZB_TIMER_SCHEDULE(energy_timerCb, NULL, TIMEOUT_1SEC);
+#else
     TL_ZB_TIMER_SCHEDULE(energy_timerCb, NULL, TIMEOUT_1MIN);
+#endif
 
     if (zb_getLocalShortAddr() >= 0xFFF8) {
         light_blink_start(90, 250, 750);
@@ -142,7 +147,18 @@ void user_app_init(void)
 //    printf("USER_DATA_SIZE:  0x%x\r\n", USER_DATA_SIZE);
 }
 
+#if TEST_SAVE_ENERGY
+uint32_t tt = 0;
+#endif
+
 void app_task(void) {
+
+#if TEST_SAVE_ENERGY
+    if(clock_time_exceed(tt, TIMEOUT_TICK_1SEC)) {
+        tt = clock_time();
+        set_energy();
+    }
+#endif
 
     button_handler();
     monitoring_handler();
