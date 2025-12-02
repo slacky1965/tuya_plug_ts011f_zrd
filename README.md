@@ -6,6 +6,9 @@
 - _TZ3000_gjnozsaz
 - _TZ3000_zloso4jk
 
+> [!WARNING]
+> Внимание!!! Существуют розетки `_TZ3000_gjnozsaz`, которые имеют другой `image type` и `manufacturer code`. Анализ выяснил, что у них немного другой чип, точнее чип тот же, но флеш-памяти в два раза меньше. Они не обновляются. И пока побороть их не получается.
+
 [Repository tuya_plug_ts011f_zrd](https://github.com/slacky1965/tuya_plug_ts011f_zrd)
 
 ---
