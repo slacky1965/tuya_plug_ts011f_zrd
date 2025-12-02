@@ -860,60 +860,60 @@ int32_t getTimeCb(void *arg) {
     return 0;
 }
 
-status_t app_onOffCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload) {
-
-//    printf("app_onOffCb, dstEp: %d\r\n", pAddrInfo->dstEp);
-
-    zcl_onOffAttr_t *pOnOff = zcl_onOffAttrsGet();
-    pOnOff += pAddrInfo->dstEp - 1;
-
-    if(pAddrInfo->dstEp == APP_ENDPOINT1 || pAddrInfo->dstEp == APP_ENDPOINT2) {
-#if 0
-        if (relay_settings.switchType[pAddrInfo->dstEp-1] != ZCL_SWITCH_TYPE_MULTIFUNCTION) {
-#endif
-            switch(cmdId){
-                case ZCL_CMD_ONOFF_ON:
-                    printf("pAddrInfo->dstEp: %d, cmd on\r\n", pAddrInfo->dstEp);
-                    cmdOnOff_on(pAddrInfo->dstEp);
-                    break;
-                case ZCL_CMD_ONOFF_OFF:
-                    printf("pAddrInfo->dstEp: %d, cmd off\r\n", pAddrInfo->dstEp);
-                    cmdOnOff_off(pAddrInfo->dstEp);
-                    break;
-                case ZCL_CMD_ONOFF_TOGGLE:
-                    printf("pAddrInfo->dstEp: %d, cmd toggle\r\n", pAddrInfo->dstEp);
-                    cmdOnOff_toggle(pAddrInfo->dstEp);
-                    break;
-//                case ZCL_CMD_OFF_WITH_EFFECT:
-//                    if(pOnOff->globalSceneControl == TRUE){
-//                        /* TODO: store its settings in its global scene */
+//status_t app_onOffCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload) {
 //
-//                        pOnOff->globalSceneControl = FALSE;
+////    printf("app_onOffCb, dstEp: %d\r\n", pAddrInfo->dstEp);
+//
+//    zcl_onOffAttr_t *pOnOff = zcl_onOffAttrsGet();
+//    pOnOff += pAddrInfo->dstEp - 1;
+//
+//    if(pAddrInfo->dstEp == APP_ENDPOINT1 || pAddrInfo->dstEp == APP_ENDPOINT2) {
+//#if 0
+//        if (relay_settings.switchType[pAddrInfo->dstEp-1] != ZCL_SWITCH_TYPE_MULTIFUNCTION) {
+//#endif
+//            switch(cmdId){
+//                case ZCL_CMD_ONOFF_ON:
+//                    printf("pAddrInfo->dstEp: %d, cmd on\r\n", pAddrInfo->dstEp);
+//                    cmdOnOff_on(pAddrInfo->dstEp);
+//                    break;
+//                case ZCL_CMD_ONOFF_OFF:
+//                    printf("pAddrInfo->dstEp: %d, cmd off\r\n", pAddrInfo->dstEp);
+//                    cmdOnOff_off(pAddrInfo->dstEp);
+//                    break;
+//                case ZCL_CMD_ONOFF_TOGGLE:
+//                    printf("pAddrInfo->dstEp: %d, cmd toggle\r\n", pAddrInfo->dstEp);
+//                    cmdOnOff_toggle(pAddrInfo->dstEp);
+//                    break;
+////                case ZCL_CMD_OFF_WITH_EFFECT:
+////                    if(pOnOff->globalSceneControl == TRUE){
+////                        /* TODO: store its settings in its global scene */
+////
+////                        pOnOff->globalSceneControl = FALSE;
+////                    }
+////                    sampleLight_onoff_offWithEffectProcess((zcl_onoff_offWithEffectCmd_t *)cmdPayload);
+////                    break;
+//                case ZCL_CMD_ON_WITH_RECALL_GLOBAL_SCENE:
+//                    if(pOnOff->globalSceneControl == FALSE){
+////                        app_onoff_onWithRecallGlobalSceneProcess();
+//                        pOnOff->globalSceneControl = TRUE;
 //                    }
-//                    sampleLight_onoff_offWithEffectProcess((zcl_onoff_offWithEffectCmd_t *)cmdPayload);
 //                    break;
-                case ZCL_CMD_ON_WITH_RECALL_GLOBAL_SCENE:
-                    if(pOnOff->globalSceneControl == FALSE){
-//                        app_onoff_onWithRecallGlobalSceneProcess();
-                        pOnOff->globalSceneControl = TRUE;
-                    }
-                    break;
-//                case ZCL_CMD_ON_WITH_TIMED_OFF:
-//                    sampleLight_onoff_onWithTimedOffProcess((zcl_onoff_onWithTimeOffCmd_t *)cmdPayload);
+////                case ZCL_CMD_ON_WITH_TIMED_OFF:
+////                    sampleLight_onoff_onWithTimedOffProcess((zcl_onoff_onWithTimeOffCmd_t *)cmdPayload);
+////                    break;
+//                default:
 //                    break;
-                default:
-                    break;
-            }
-#if 0
-        } else {
-            printf("pAddrInfo->dstEp: %d, cmd off\r\n", pAddrInfo->dstEp);
-            cmdOnOff_off(pAddrInfo->dstEp);
-        }
-#endif
-    }
-
-    return ZCL_STA_SUCCESS;
-}
+//            }
+//#if 0
+//        } else {
+//            printf("pAddrInfo->dstEp: %d, cmd off\r\n", pAddrInfo->dstEp);
+//            cmdOnOff_off(pAddrInfo->dstEp);
+//        }
+//#endif
+//    }
+//
+//    return ZCL_STA_SUCCESS;
+//}
 
 status_t app_msInputCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdPayload) {
 
