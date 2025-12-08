@@ -7,7 +7,7 @@ export default {
                     {manufacturerName: '_TZ3000_zloso4jk'}
                  ],
     zigbeeModel: ['TS011F'],
-    model: 'Original Tuya glug ready for update',
+    model: 'Original Tuya plug ready for update',
     vendor: 'Slacky-DIY',
     description: 'Original Tuya plug ready for custom Firmware update',
     extend: [
