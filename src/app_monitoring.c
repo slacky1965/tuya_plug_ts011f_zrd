@@ -1,10 +1,10 @@
 #include "app_main.h"
 
 // This REF get from https://github.com/esphome/esphome/blob/dev/esphome/components/bl0942/bl0942.h
-#define BL0942_POWER_REF        596
-#define BL0942_VOLTAGE_REF      15873.35944299
-#define BL0942_CURRENT_REF      251213.46469622
-#define BL0942_ENERGY_REF       3304.61127328
+#define BL0942_POWER_REF        623.0270705
+#define BL0942_VOLTAGE_REF      15883.34116
+#define BL0942_CURRENT_REF      251065.6814
+#define BL0942_ENERGY_REF       5347.484240
 
 #define ID_ENERGY_OLD           0x0FED1410
 #define TOP_MASK_OLD            0xFFFFFFFF
